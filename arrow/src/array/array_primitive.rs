@@ -161,20 +161,24 @@ impl<T: ArrowPrimitiveType> Array for PrimitiveArray<T> {
 }
 
 fn as_datetime<T: ArrowPrimitiveType>(v: i64) -> Option<NaiveDateTime> {
+    as_datetime_opt::<T>(v)
+}
+
+fn as_datetime_opt<T: ArrowPrimitiveType>(v: i64) -> Option<NaiveDateTime> {
     match T::DATA_TYPE {
-        DataType::Date32 => Some(temporal_conversions::date32_to_datetime(v as i32)),
-        DataType::Date64 => Some(temporal_conversions::date64_to_datetime(v)),
+        DataType::Date32 => temporal_conversions::date32_to_datetime_opt(v as i32),
+        DataType::Date64 => temporal_conversions::date64_to_datetime_opt(v),
         DataType::Time32(_) | DataType::Time64(_) => None,
         DataType::Timestamp(unit, _) => match unit {
-            TimeUnit::Second => Some(temporal_conversions::timestamp_s_to_datetime(v)),
+            TimeUnit::Second => temporal_conversions::timestamp_s_to_datetime_opt(v),
             TimeUnit::Millisecond => {
-                Some(temporal_conversions::timestamp_ms_to_datetime(v))
+                temporal_conversions::timestamp_ms_to_datetime_opt(v)
             }
             TimeUnit::Microsecond => {
-                Some(temporal_conversions::timestamp_us_to_datetime(v))
+                temporal_conversions::timestamp_us_to_datetime_opt(v)
             }
             TimeUnit::Nanosecond => {
-                Some(temporal_conversions::timestamp_ns_to_datetime(v))
+                temporal_conversions::timestamp_ns_to_datetime_opt(v)
             }
         },
         // interval is not yet fully documented [ARROW-3097]
@@ -193,16 +197,16 @@ fn as_time<T: ArrowPrimitiveType>(v: i64) -> Option<NaiveTime> {
             // safe to immediately cast to u32 as `self.value(i)` is positive i32
             let v = v as u32;
             match unit {
-                TimeUnit::Second => Some(temporal_conversions::time32s_to_time(v as i32)),
+                TimeUnit::Second => temporal_conversions::time32s_to_time(v as i32),
                 TimeUnit::Millisecond => {
-                    Some(temporal_conversions::time32ms_to_time(v as i32))
+                    temporal_conversions::time32ms_to_time(v as i32)
                 }
                 _ => None,
             }
         }
         DataType::Time64(unit) => match unit {
-            TimeUnit::Microsecond => Some(temporal_conversions::time64us_to_time(v)),
-            TimeUnit::Nanosecond => Some(temporal_conversions::time64ns_to_time(v)),
+            TimeUnit::Microsecond => temporal_conversions::time64us_to_time(v),
+            TimeUnit::Nanosecond => temporal_conversions::time64ns_to_time(v),
             _ => None,
         },
         DataType::Timestamp(_, _) => as_datetime::<T>(v).map(|datetime| datetime.time()),
@@ -239,7 +243,7 @@ where
     /// If a data type cannot be converted to `NaiveDateTime`, a `None` is returned.
     /// A valid value is expected, thus the user should first check for validity.
     pub fn value_as_datetime(&self, i: usize) -> Option<NaiveDateTime> {
-        as_datetime::<T>(i64::from(self.value(i)))
+        as_datetime_opt::<T>(i64::from(self.value(i)))
     }
 
     /// Returns value as a chrono `NaiveDate` by using `Self::datetime()`

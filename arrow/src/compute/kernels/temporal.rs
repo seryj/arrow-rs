@@ -84,10 +84,7 @@ where
                 } else {
                     match array.value_as_datetime(i) {
                         Some(dt) => b.append_value(dt.year() as i32)?,
-                        None => {
-                            return Err(ArrowError::ComputeError(format!(
-                                "Could not extract year from value {:?}", array.value(i))))
-                        },
+                        None => b.append_null()?,
                     }
                 }
             }
@@ -176,10 +173,7 @@ pub fn decade<T>(array: &PrimitiveArray<T>) -> Result<Int32Array>
                         Some(dt) => {
                             b.append_value((dt.year() / 10) as i32)?
                         },
-                        None => {
-                            return Err(ArrowError::ComputeError(format!(
-                                "Could not extract decade from value {:?}", array.value(i))))
-                        },
+                        None => b.append_null()?,
                     }
                 }
             }

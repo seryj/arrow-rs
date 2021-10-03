@@ -28,16 +28,30 @@ const MICROSECONDS: i64 = 1_000_000;
 /// Number of nanoseconds in a second
 const NANOSECONDS: i64 = 1_000_000_000;
 
-/// converts a `i32` representing a `date32` to [`NaiveDateTime`]
+/// converts a `i32` representing a `date32` to [`NaiveDateTime`]. If the value cannot be converted,
+/// function will panic.
 #[inline]
 pub fn date32_to_datetime(v: i32) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(v as i64 * SECONDS_IN_DAY, 0)
+    date32_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
 }
 
-/// converts a `i64` representing a `date64` to [`NaiveDateTime`]
+/// converts a `i32` representing a `date32` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn date32_to_datetime_opt(v: i32) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(v as i64 * SECONDS_IN_DAY, 0)
+}
+
+/// converts a `i64` representing a `date64` to [`NaiveDateTime`]. If the value cannot be converted,
+/// function will panic.
 #[inline]
 pub fn date64_to_datetime(v: i64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(
+    date64_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
+}
+
+/// converts a `i64` representing a `date64` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn date64_to_datetime_opt(v: i64) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(
         // extract seconds from milliseconds
         v / MILLISECONDS,
         // discard extracted seconds and convert milliseconds to nanoseconds
@@ -45,17 +59,18 @@ pub fn date64_to_datetime(v: i64) -> NaiveDateTime {
     )
 }
 
-/// converts a `i32` representing a `time32(s)` to [`NaiveDateTime`]
+/// converts a `i32` representing a `time32(s)` to [`NaiveDateTime`]. If the value cannot be
+/// converted, function will panic.
 #[inline]
-pub fn time32s_to_time(v: i32) -> NaiveTime {
-    NaiveTime::from_num_seconds_from_midnight(v as u32, 0)
+pub fn time32s_to_time(v: i32) -> Option<NaiveTime> {
+    NaiveTime::from_num_seconds_from_midnight_opt(v as u32, 0)
 }
 
 /// converts a `i32` representing a `time32(ms)` to [`NaiveDateTime`]
 #[inline]
-pub fn time32ms_to_time(v: i32) -> NaiveTime {
+pub fn time32ms_to_time(v: i32) -> Option<NaiveTime> {
     let v = v as i64;
-    NaiveTime::from_num_seconds_from_midnight(
+    NaiveTime::from_num_seconds_from_midnight_opt(
         // extract seconds from milliseconds
         (v / MILLISECONDS) as u32,
         // discard extracted seconds and convert milliseconds to
@@ -66,8 +81,8 @@ pub fn time32ms_to_time(v: i32) -> NaiveTime {
 
 /// converts a `i64` representing a `time64(us)` to [`NaiveDateTime`]
 #[inline]
-pub fn time64us_to_time(v: i64) -> NaiveTime {
-    NaiveTime::from_num_seconds_from_midnight(
+pub fn time64us_to_time(v: i64) -> Option<NaiveTime> {
+    NaiveTime::from_num_seconds_from_midnight_opt(
         // extract seconds from microseconds
         (v / MICROSECONDS) as u32,
         // discard extracted seconds and convert microseconds to
@@ -78,8 +93,8 @@ pub fn time64us_to_time(v: i64) -> NaiveTime {
 
 /// converts a `i64` representing a `time64(ns)` to [`NaiveDateTime`]
 #[inline]
-pub fn time64ns_to_time(v: i64) -> NaiveTime {
-    NaiveTime::from_num_seconds_from_midnight(
+pub fn time64ns_to_time(v: i64) -> Option<NaiveTime> {
+    NaiveTime::from_num_seconds_from_midnight_opt(
         // extract seconds from nanoseconds
         (v / NANOSECONDS) as u32,
         // discard extracted seconds
@@ -87,16 +102,30 @@ pub fn time64ns_to_time(v: i64) -> NaiveTime {
     )
 }
 
-/// converts a `i64` representing a `timestamp(s)` to [`NaiveDateTime`]
+/// converts a `i64` representing a `timestamp(s)` to [`NaiveDateTime`]. If the value cannot be
+/// converted, function will panic.
 #[inline]
 pub fn timestamp_s_to_datetime(v: i64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(v, 0)
+    timestamp_s_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
 }
 
-/// converts a `i64` representing a `timestamp(ms)` to [`NaiveDateTime`]
+/// converts a `i64` representing a `timestamp(s)` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn timestamp_s_to_datetime_opt(v: i64) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(v, 0)
+}
+
+/// converts a `i64` representing a `timestamp(ms)` to [`NaiveDateTime`]. If the value cannot be
+/// converted, function will panic.
 #[inline]
 pub fn timestamp_ms_to_datetime(v: i64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(
+    timestamp_ms_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
+}
+
+/// converts a `i64` representing a `timestamp(ms)` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn timestamp_ms_to_datetime_opt(v: i64) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(
         // extract seconds from milliseconds
         v / MILLISECONDS,
         // discard extracted seconds and convert milliseconds to nanoseconds
@@ -104,10 +133,17 @@ pub fn timestamp_ms_to_datetime(v: i64) -> NaiveDateTime {
     )
 }
 
-/// converts a `i64` representing a `timestamp(us)` to [`NaiveDateTime`]
+/// converts a `i64` representing a `timestamp(us)` to [`NaiveDateTime`]. If the value cannot be
+/// converted, function will panic.
 #[inline]
 pub fn timestamp_us_to_datetime(v: i64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(
+    timestamp_us_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
+}
+
+/// converts a `i64` representing a `timestamp(us)` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn timestamp_us_to_datetime_opt(v: i64) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(
         // extract seconds from microseconds
         v / MICROSECONDS,
         // discard extracted seconds and convert microseconds to nanoseconds
@@ -115,10 +151,17 @@ pub fn timestamp_us_to_datetime(v: i64) -> NaiveDateTime {
     )
 }
 
-/// converts a `i64` representing a `timestamp(ns)` to [`NaiveDateTime`]
+/// converts a `i64` representing a `timestamp(ns)` to [`NaiveDateTime`]. If the value cannot be
+/// converted, function will panic.
 #[inline]
 pub fn timestamp_ns_to_datetime(v: i64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(
+    timestamp_ns_to_datetime_opt(v).expect(format!("Could not convert value {} into NaiveDateTime", v).as_str())
+}
+
+/// converts a `i64` representing a `timestamp(ns)` to [`Option<NaiveDateTime>`]
+#[inline]
+pub fn timestamp_ns_to_datetime_opt(v: i64) -> Option<NaiveDateTime> {
+    NaiveDateTime::from_timestamp_opt(
         // extract seconds from nanoseconds
         v / NANOSECONDS,
         // discard extracted seconds

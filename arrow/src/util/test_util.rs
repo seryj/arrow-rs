@@ -89,7 +89,7 @@ pub fn arrow_test_data() -> String {
 /// The default can be overridden by the optional environment variable
 /// `PARQUET_TEST_DATA`
 ///
-/// panics when the directory can not be found.
+/// panics when the directory cannot be found.
 ///
 /// Example:
 /// ```
